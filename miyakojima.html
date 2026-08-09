@@ -166,33 +166,6 @@
     .overview-label { margin-top: 5px; color: #5f8288; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; }
     .overview-value { margin-top: 5px; font-size: 13px; font-weight: 800; }
 
-    /* 太陽タイムライン（旅の流れ） */
-    .sun-timeline {
-      position: relative; width: 100%; aspect-ratio: 1200 / 320;
-      border-radius: 30px; box-shadow: var(--shadow); border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-    .sun-bg { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
-    .sun-bg svg { display: block; width: 100%; height: 100%; }
-    .sun-events { position: absolute; inset: 0; }
-    .sun-event { position: absolute; transform: translate(-50%, -50%); text-align: center; }
-    .sun-event.is-start { transform: translate(-6%, -50%); text-align: left; }
-    .sun-event.is-end { transform: translate(-94%, -50%); text-align: right; }
-    .sun-event-icon {
-      display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto;
-      border-radius: 50%; background: rgba(255, 255, 255, 0.94); box-shadow: 0 6px 16px rgba(6, 30, 38, 0.22);
-      font-size: 19px;
-    }
-    .sun-event-label {
-      display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 999px;
-      background: rgba(255, 255, 255, 0.94); color: #1f3438; font-size: 10px; font-weight: 800;
-      white-space: nowrap; box-shadow: 0 4px 10px rgba(6, 30, 38, 0.16);
-    }
-    @media (max-width: 760px) {
-      .sun-timeline { aspect-ratio: 640 / 460; }
-      .sun-event-icon { width: 32px; height: 32px; font-size: 15px; }
-      .sun-event-label { font-size: 9px; padding: 2px 7px; }
-    }
-
     /* タイムライン */
     .timeline { position: relative; max-width: 850px; margin: auto; }
     .timeline::before {
@@ -391,43 +364,6 @@
         <div class="overview-icon">🌺</div>
         <div class="overview-label">THEME</div>
         <div class="overview-value">海・絶景・宮古の食</div>
-      </div>
-    </section>
-
-    <!-- 太陽タイムライン（旅の流れ） -->
-    <section class="section" id="flow" style="padding-top: 30px;">
-      <div class="section-intro">
-        <div class="kicker">TRIP FLOW</div>
-        <h2>朝が来て、夜が来て。</h2>
-        <p class="lead">DAY1の出発からDAY3の帰路まで、太陽の動きにあわせて旅の流れをひと目で。</p>
-      </div>
-      <div class="sun-timeline">
-        <div class="sun-bg">
-          <svg viewBox="0 0 1200 320" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="skyGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#bfe9f0"></stop>
-                <stop offset="42%" stop-color="#eaf6f6"></stop>
-                <stop offset="70%" stop-color="#123a4d"></stop>
-                <stop offset="100%" stop-color="#08222b"></stop>
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="1200" height="320" fill="url(#skyGradient)"></rect>
-            <path
-              fill="none" stroke="#ffb84d" stroke-width="4" stroke-linecap="round"
-              d="M0.0,160.0 L9.4,143.0 L18.8,126.4 L28.1,110.3 L37.5,95.0 L46.9,80.9 L56.2,68.1 L65.6,56.9 L75.0,47.4 L84.4,39.9 L93.8,34.4 L103.1,31.1 L112.5,30.0 L121.9,31.1 L131.2,34.4 L140.6,39.9 L150.0,47.4 L159.4,56.9 L168.8,68.1 L178.1,80.9 L187.5,95.0 L196.9,110.3 L206.2,126.4 L215.6,143.0 L225.0,160.0 L234.4,177.0 L243.8,193.6 L253.1,209.7 L262.5,225.0 L271.9,239.1 L281.2,251.9 L290.6,263.1 L300.0,272.6 L309.4,280.1 L318.8,285.6 L328.1,288.9 L337.5,290.0 L346.9,288.9 L356.2,285.6 L365.6,280.1 L375.0,272.6 L384.4,263.1 L393.8,251.9 L403.1,239.1 L412.5,225.0 L421.9,209.7 L431.2,193.6 L440.6,177.0 L450.0,160.0 L459.4,143.0 L468.8,126.4 L478.1,110.3 L487.5,95.0 L496.9,80.9 L506.2,68.1 L515.6,56.9 L525.0,47.4 L534.4,39.9 L543.8,34.4 L553.1,31.1 L562.5,30.0 L571.9,31.1 L581.2,34.4 L590.6,39.9 L600.0,47.4 L609.4,56.9 L618.8,68.1 L628.1,80.9 L637.5,95.0 L646.9,110.3 L656.2,126.4 L665.6,143.0 L675.0,160.0 L684.4,177.0 L693.8,193.6 L703.1,209.7 L712.5,225.0 L721.9,239.1 L731.2,251.9 L740.6,263.1 L750.0,272.6 L759.4,280.1 L768.8,285.6 L778.1,288.9 L787.5,290.0 L796.9,288.9 L806.2,285.6 L815.6,280.1 L825.0,272.6 L834.4,263.1 L843.8,251.9 L853.1,239.1 L862.5,225.0 L871.9,209.7 L881.2,193.6 L890.6,177.0 L900.0,160.0 L909.4,143.0 L918.8,126.4 L928.1,110.3 L937.5,95.0 L946.9,80.9 L956.2,68.1 L965.6,56.9 L975.0,47.4 L984.4,39.9 L993.8,34.4 L1003.1,31.1 L1012.5,30.0 L1021.9,31.1 L1031.2,34.4 L1040.6,39.9 L1050.0,47.4 L1059.4,56.9 L1068.8,68.1 L1078.1,80.9 L1087.5,95.0 L1096.9,110.3 L1106.2,126.4 L1115.6,143.0 L1125.0,160.0 L1134.4,177.0 L1143.8,193.6 L1153.1,209.7 L1162.5,225.0 L1171.9,239.1 L1181.2,251.9 L1190.6,263.1 L1200.0,272.6"
-            ></path>
-          </svg>
-        </div>
-        <div class="sun-events">
-          <div class="sun-event is-start" style="left: 1.56%; top: 39.49%;"><span class="sun-event-icon">🛫</span><span class="sun-event-label">DAY1 出発</span></div>
-          <div class="sun-event" style="left: 9.38%; top: 9.38%;"><span class="sun-event-icon">🏖️</span><span class="sun-event-label">前浜ビーチ</span></div>
-          <div class="sun-event" style="left: 28.12%; top: 90.62%;"><span class="sun-event-icon">🌙</span><span class="sun-event-label">夜</span></div>
-          <div class="sun-event" style="left: 46.88%; top: 9.38%;"><span class="sun-event-icon">🐠</span><span class="sun-event-label">八重干瀬</span></div>
-          <div class="sun-event" style="left: 65.62%; top: 90.62%;"><span class="sun-event-icon">🌙</span><span class="sun-event-label">夜</span></div>
-          <div class="sun-event" style="left: 84.38%; top: 9.38%;"><span class="sun-event-icon">🏝️</span><span class="sun-event-label">ユニの浜</span></div>
-          <div class="sun-event is-end" style="left: 98.44%; top: 78.73%;"><span class="sun-event-icon">🛬</span><span class="sun-event-label">DAY3 帰路</span></div>
-        </div>
       </div>
     </section>
 
