@@ -68,7 +68,7 @@
 
     /* 漂うモチーフ */
     #float-layer { position: fixed; inset: 0; z-index: 80; overflow: hidden; pointer-events: none; }
-    .drift { position: absolute; bottom: -12vh; opacity: 0.7; filter: drop-shadow(0 5px 4px rgba(10, 60, 70, 0.1));
+    .drift { position: absolute; bottom: -12vh; opacity: 0.45; filter: drop-shadow(0 5px 4px rgba(10, 60, 70, 0.1));
       animation: drift-up var(--duration) linear var(--delay) infinite; }
     @keyframes drift-up {
       0% { transform: translate3d(0, 15vh, 0) rotate(0deg); }
@@ -101,10 +101,10 @@
       position: relative; min-height: 100svh; display: grid; place-items: center;
       overflow: hidden; isolation: isolate;
       background:
-        radial-gradient(circle at 22% 18%, rgba(255, 224, 160, 0.55), transparent 46%),
-        linear-gradient(180deg, #0a4a56 0%, #0e93a0 38%, #38c1c4 68%, rgba(234, 246, 246, 0.98) 100%);
+        linear-gradient(180deg, rgba(4, 22, 28, 0.6) 0%, rgba(4, 22, 28, 0.22) 38%, rgba(4, 22, 28, 0.12) 58%, rgba(234, 246, 246, 0.96) 96%),
+        url("images/maehama-beach.jpg") center 62% / cover;
     }
-    .hero::after { content: ""; position: absolute; right: 0; bottom: 0; left: 0; height: 34%; pointer-events: none;
+    .hero::after { content: ""; position: absolute; right: 0; bottom: 0; left: 0; height: 30%; pointer-events: none;
       background: linear-gradient(transparent, var(--sky)); }
     .hero-content {
       position: relative; z-index: 3; width: min(92%, 780px); padding: 100px 18px 90px;
@@ -161,9 +161,13 @@
       border: 1px solid rgba(255, 255, 255, 0.85); border-radius: 28px;
       background: rgba(255, 255, 255, 0.75); box-shadow: var(--shadow); backdrop-filter: blur(24px);
     }
-    .overview-item { padding: 22px 18px; text-align: center; background: rgba(255, 253, 248, 0.6); }
-    .overview-icon { font-size: 23px; }
-    .overview-label { margin-top: 5px; color: #5f8288; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; }
+    .overview-item { padding: 24px 18px; text-align: center; background: rgba(255, 253, 248, 0.6); }
+    .overview-icon {
+      display: grid; place-items: center; width: 46px; height: 46px; margin: 0 auto;
+      border-radius: 50%; background: linear-gradient(135deg, rgba(56, 193, 196, 0.2), rgba(240, 120, 79, 0.14));
+      font-size: 21px;
+    }
+    .overview-label { margin-top: 10px; color: #5f8288; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; }
     .overview-value { margin-top: 5px; font-size: 13px; font-weight: 800; }
 
     /* タイムライン */
@@ -192,10 +196,14 @@
       overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.85); border-radius: var(--radius);
       background: var(--paper); box-shadow: var(--shadow); backdrop-filter: blur(16px);
     }
-    .timeline-card.with-photo { min-height: 270px; display: grid; grid-template-columns: 42% 58%; }
+    .timeline-card.with-photo { min-height: 290px; display: grid; grid-template-columns: 44% 56%; }
     .card-photo {
-      min-height: 220px; display: flex; align-items: center; justify-content: center;
+      position: relative; min-height: 240px; display: flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, #d8f0ef, #eef8f2); background-position: center; background-size: cover;
+    }
+    .card-photo::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(90deg, rgba(6, 30, 38, 0.1), transparent 30%);
     }
     .photo-placeholder { text-align: center; color: #3f7278; }
     .photo-placeholder-icon { font-size: 32px; }
@@ -276,8 +284,8 @@
     .ending {
       min-height: 70svh; display: grid; place-items: center; padding: 100px 22px; color: #ffffff; text-align: center;
       background:
-        radial-gradient(circle at 70% 20%, rgba(255, 210, 150, 0.35), transparent 50%),
-        linear-gradient(200deg, #08222b, var(--deepsea) 55%, var(--sea));
+        linear-gradient(200deg, rgba(6, 24, 30, 0.75), rgba(8, 34, 43, 0.55) 55%, rgba(14, 111, 122, 0.55)),
+        url("images/uninohama.jpg") center / cover;
     }
     .ending h2 { margin: 0 0 18px; font-family: "Zen Maru Gothic", sans-serif; font-size: clamp(42px, 11vw, 84px); }
     .ending p { line-height: 2; letter-spacing: 0.06em; }
@@ -285,7 +293,7 @@
 
     @media (max-width: 760px) {
       .overview { grid-template-columns: 1fr; }
-      .overview-item { display: grid; grid-template-columns: 34px 1fr; column-gap: 10px; align-items: center; padding: 13px 18px; text-align: left; }
+      .overview-item { display: grid; grid-template-columns: 46px 1fr; column-gap: 12px; align-items: center; padding: 14px 18px; text-align: left; }
       .overview-icon { grid-row: 1 / 3; }
       .overview-label, .overview-value { margin: 0; }
       .timeline::before { left: 20px; }
@@ -787,12 +795,12 @@
       const floatLayer = $("#float-layer");
       const motifs = ["🌺", "🐠", "🌊"];
       if (floatLayer) {
-        for (let index = 0; index < 16; index++) {
+        for (let index = 0; index < 9; index++) {
           const drift = document.createElement("span");
           drift.className = "drift";
           drift.textContent = motifs[Math.floor(Math.random() * motifs.length)];
           drift.style.left = `${Math.random() * 100}vw`;
-          drift.style.fontSize = `${12 + Math.random() * 17}px`;
+          drift.style.fontSize = `${11 + Math.random() * 12}px`;
           drift.style.setProperty("--duration", `${10 + Math.random() * 11}s`);
           drift.style.setProperty("--delay", `${-Math.random() * 18}s`);
           drift.style.setProperty("--sway", `${-70 + Math.random() * 140}px`);
