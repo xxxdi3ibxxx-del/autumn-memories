@@ -167,9 +167,13 @@
     .overview-value { margin-top: 5px; font-size: 13px; font-weight: 800; }
 
     /* 太陽タイムライン（旅の流れ） */
+    .journey { position: relative; }
+    .journey-sentinel { height: 1px; }
     .sun-timeline {
-      position: relative; width: 100%; aspect-ratio: 1200 / 320;
+      position: sticky; top: 10px; z-index: 45;
+      width: min(calc(100% - 40px), 1060px); aspect-ratio: 1200 / 320; margin: 10px auto 0;
       border-radius: 30px; box-shadow: var(--shadow); border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: height 0.3s ease, box-shadow 0.3s ease;
     }
     .sun-bg { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
     .sun-bg svg { display: block; width: 100%; height: 100%; }
@@ -180,13 +184,24 @@
     .sun-event-icon {
       display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto;
       border-radius: 50%; background: rgba(255, 255, 255, 0.94); box-shadow: 0 6px 16px rgba(6, 30, 38, 0.22);
-      font-size: 19px;
+      font-size: 19px; transition: width 0.3s ease, height 0.3s ease, font-size 0.3s ease;
     }
     .sun-event-label {
       display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 999px;
       background: rgba(255, 255, 255, 0.94); color: #1f3438; font-size: 10px; font-weight: 800;
       white-space: nowrap; box-shadow: 0 4px 10px rgba(6, 30, 38, 0.16);
     }
+    .sun-walker {
+      position: absolute; z-index: 5; display: none;
+      font-size: 26px; transform: translate(-50%, -50%);
+      filter: drop-shadow(0 4px 6px rgba(6, 30, 38, 0.4));
+      transition: left 0.05s linear, top 0.05s linear, font-size 0.3s ease;
+    }
+    html.js .sun-walker { display: block; }
+    .sun-timeline.is-compact { aspect-ratio: unset; height: 68px; box-shadow: 0 12px 30px rgba(6, 30, 38, 0.25); }
+    .sun-timeline.is-compact .sun-event-label { display: none; }
+    .sun-timeline.is-compact .sun-event-icon { width: 26px; height: 26px; font-size: 13px; }
+    .sun-timeline.is-compact .sun-walker { font-size: 18px; }
     @media (max-width: 760px) {
       .sun-timeline { aspect-ratio: 640 / 460; }
       .sun-event-icon { width: 32px; height: 32px; font-size: 15px; }
@@ -395,13 +410,18 @@
     </section>
 
     <!-- 太陽タイムライン（旅の流れ） -->
-    <section class="section" id="flow" style="padding-top: 30px;">
+    <section class="section" id="flow" style="padding-top: 30px; padding-bottom: 0;">
       <div class="section-intro">
         <div class="kicker">TRIP FLOW</div>
         <h2>朝が来て、夜が来て。</h2>
-        <p class="lead">DAY1の出発からDAY3の帰路まで、太陽の動きにあわせて旅の流れをひと目で。</p>
+        <p class="lead">DAY1の出発からDAY3の帰路まで、太陽の動きにあわせて旅の流れをひと目で。スクロールすると上にピン留めされます。</p>
       </div>
-      <div class="sun-timeline">
+    </section>
+
+    <!-- DAY1〜DAY3をまとめて旅の区間とし、太陽タイムラインを上部にピン留めする -->
+    <div class="journey" id="journey">
+      <div class="journey-sentinel" id="journey-sentinel"></div>
+      <div class="sun-timeline" id="sun-timeline">
         <div class="sun-bg">
           <svg viewBox="0 0 1200 320" preserveAspectRatio="none">
             <defs>
@@ -428,8 +448,8 @@
           <div class="sun-event" style="left: 84.38%; top: 9.38%;"><span class="sun-event-icon">🏝️</span><span class="sun-event-label">ユニの浜</span></div>
           <div class="sun-event is-end" style="left: 98.44%; top: 78.73%;"><span class="sun-event-icon">🛬</span><span class="sun-event-label">DAY3 帰路</span></div>
         </div>
+        <div class="sun-walker" id="sun-walker">🚶</div>
       </div>
-    </section>
 
     <!-- DAY1 -->
     <section class="section" id="day1">
@@ -747,6 +767,8 @@
 
       </div>
     </section>
+    </div>
+    <!-- /.journey -->
 
     <!-- 今後決めること -->
     <section class="section" id="todo">
@@ -862,6 +884,49 @@
           drift.style.setProperty("--sway", `${-70 + Math.random() * 140}px`);
           floatLayer.appendChild(drift);
         }
+      }
+
+      /* 太陽タイムラインの固定化と、歩く人の位置更新 */
+      const journeyEl = $("#journey");
+      const sunTimelineEl = $("#sun-timeline");
+      const sentinelEl = $("#journey-sentinel");
+      const walkerEl = $("#sun-walker");
+
+      if (sentinelEl && sunTimelineEl && "IntersectionObserver" in window) {
+        const stickyObserver = new IntersectionObserver(
+          ([entry]) => sunTimelineEl.classList.toggle("is-compact", !entry.isIntersecting),
+          { threshold: [0], rootMargin: "-1px 0px 0px 0px" }
+        );
+        stickyObserver.observe(sentinelEl);
+      }
+
+      if (journeyEl && sunTimelineEl && walkerEl) {
+        const tMin = 6;
+        const tMax = 70;
+        const midY = 160;
+        const amplitude = 130;
+        const altitude = t => -Math.cos((t / 24) * 2 * Math.PI);
+
+        let ticking = false;
+        const updateWalker = () => {
+          const journeyRect = journeyEl.getBoundingClientRect();
+          const scrollable = journeyEl.offsetHeight - sunTimelineEl.offsetHeight;
+          const scrolled = -journeyRect.top;
+          const progress = Math.min(1, Math.max(0, scrollable > 0 ? scrolled / scrollable : 0));
+          const t = tMin + progress * (tMax - tMin);
+          walkerEl.style.left = `${((t - tMin) / (tMax - tMin)) * 100}%`;
+          walkerEl.style.top = `${(midY - altitude(t) * amplitude) / 320 * 100}%`;
+          ticking = false;
+        };
+
+        window.addEventListener("scroll", () => {
+          if (!ticking) {
+            requestAnimationFrame(updateWalker);
+            ticking = true;
+          }
+        }, { passive: true });
+
+        updateWalker();
       }
 
       /* 旅をはじめる */
