@@ -166,6 +166,33 @@
     .overview-label { margin-top: 5px; color: #5f8288; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; }
     .overview-value { margin-top: 5px; font-size: 13px; font-weight: 800; }
 
+    /* 太陽タイムライン（旅の流れ） */
+    .sun-timeline {
+      position: relative; width: 100%; aspect-ratio: 1200 / 320;
+      border-radius: 30px; box-shadow: var(--shadow); border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .sun-bg { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+    .sun-bg svg { display: block; width: 100%; height: 100%; }
+    .sun-events { position: absolute; inset: 0; }
+    .sun-event { position: absolute; transform: translate(-50%, -50%); text-align: center; }
+    .sun-event.is-start { transform: translate(-6%, -50%); text-align: left; }
+    .sun-event.is-end { transform: translate(-94%, -50%); text-align: right; }
+    .sun-event-icon {
+      display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto;
+      border-radius: 50%; background: rgba(255, 255, 255, 0.94); box-shadow: 0 6px 16px rgba(6, 30, 38, 0.22);
+      font-size: 19px;
+    }
+    .sun-event-label {
+      display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94); color: #1f3438; font-size: 10px; font-weight: 800;
+      white-space: nowrap; box-shadow: 0 4px 10px rgba(6, 30, 38, 0.16);
+    }
+    @media (max-width: 760px) {
+      .sun-timeline { aspect-ratio: 640 / 460; }
+      .sun-event-icon { width: 32px; height: 32px; font-size: 15px; }
+      .sun-event-label { font-size: 9px; padding: 2px 7px; }
+    }
+
     /* タイムライン */
     .timeline { position: relative; max-width: 850px; margin: auto; }
     .timeline::before {
@@ -351,6 +378,32 @@
         <div class="overview-icon">🌺</div>
         <div class="overview-label">THEME</div>
         <div class="overview-value">海・絶景・宮古の食</div>
+      </div>
+    </section>
+
+    <!-- 太陽タイムライン（旅の流れ） -->
+    <section class="section" id="flow" style="padding-top: 30px;">
+      <div class="section-intro">
+        <div class="kicker">TRIP FLOW</div>
+        <h2>朝が来て、夜が来て。</h2>
+        <p class="lead">DAY1の出発からDAY3の帰路まで、太陽の動きにあわせて旅の流れをひと目で。</p>
+      </div>
+      <div class="sun-timeline">
+        <div class="sun-bg">
+          <svg viewBox="0 0 1200 320" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="skyGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#bfe9f0"></stop>
+                <stop offset="42%" stop-color="#eaf6f6"></stop>
+                <stop offset="70%" stop-color="#123a4d"></stop>
+                <stop offset="100%" stop-color="#08222b"></stop>
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="1200" height="320" fill="url(#skyGradient)"></rect>
+            <path id="sun-path" fill="none" stroke="#ffb84d" stroke-width="4" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div class="sun-events" id="sun-events"></div>
       </div>
     </section>
 
@@ -748,6 +801,53 @@
           countdown.innerHTML = `あの日から <strong>${Math.abs(days)}</strong> 日`;
         }
       }
+
+      /* 太陽タイムライン（旅の流れ） */
+      const buildSunTimeline = () => {
+        const path = document.getElementById("sun-path");
+        const eventsContainer = document.getElementById("sun-events");
+        if (!path || !eventsContainer) return;
+
+        const tMin = 6;
+        const tMax = 70;
+        const width = 1200;
+        const height = 320;
+        const midY = 160;
+        const amplitude = 130;
+
+        const altitude = t => -Math.cos((t / 24) * 2 * Math.PI);
+        const xForT = t => ((t - tMin) / (tMax - tMin)) * width;
+        const yForT = t => midY - altitude(t) * amplitude;
+
+        let d = "";
+        for (let t = tMin; t <= tMax; t += 0.2) {
+          d += `${t === tMin ? "M" : "L"}${xForT(t).toFixed(1)},${yForT(t).toFixed(1)} `;
+        }
+        path.setAttribute("d", d.trim());
+
+        const events = [
+          { t: 7, icon: "🛫", label: "DAY1 出発" },
+          { t: 12, icon: "🏖️", label: "前浜ビーチ" },
+          { t: 24, icon: "🌙", label: "夜" },
+          { t: 36, icon: "🐠", label: "八重干瀬" },
+          { t: 48, icon: "🌙", label: "夜" },
+          { t: 60, icon: "🌊", label: "イムギャー" },
+          { t: 69, icon: "🛬", label: "DAY3 帰路" }
+        ];
+
+        events.forEach(event => {
+          const marker = document.createElement("div");
+          marker.className = "sun-event";
+          if (event.t === tMin + 1) marker.classList.add("is-start");
+          if (event.t === tMax - 1) marker.classList.add("is-end");
+          marker.style.left = `${((event.t - tMin) / (tMax - tMin)) * 100}%`;
+          marker.style.top = `${(yForT(event.t) / height) * 100}%`;
+          marker.innerHTML = `<span class="sun-event-icon">${event.icon}</span><span class="sun-event-label">${event.label}</span>`;
+          eventsContainer.appendChild(marker);
+        });
+      };
+
+      buildSunTimeline();
 
       /* 漂うモチーフ */
       const floatLayer = $("#float-layer");
