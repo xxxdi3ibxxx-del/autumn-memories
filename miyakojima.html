@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e6e7a">
+  <title>Miyakojima Trip｜宮古島 2027.09</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --sand: #faf4e6;
+      --sky: #eaf6f6;
+      --sea: #0e93a0;
+      --deepsea: #0a5f6e;
+      --lagoon: #38c1c4;
+      --coral: #f0784f;
+      --ink: #1f3438;
+      --night: #08222b;
+      --paper: rgba(255, 253, 248, 0.9);
+      --shadow: 0 20px 60px rgba(10, 60, 70, 0.14);
+      --radius: 30px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; background: var(--sand); }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(56, 193, 196, 0.16), transparent 30rem),
+        linear-gradient(180deg, var(--sky), #fdf9ee 55%, #f5efdd);
+      font-family: "M PLUS Rounded 1c", "Zen Maru Gothic", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font-family: inherit; }
+
+    /* ロード画面 */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      display: grid; place-items: center;
+      opacity: 1; visibility: visible; pointer-events: auto;
+      background: var(--sky);
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      animation: force-hide-loader 0s linear 2.5s forwards;
+    }
+    #loader.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; animation: none; }
+    @keyframes force-hide-loader { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+    .loader-content { text-align: center; }
+    .loader-wave { font-size: 48px; animation: loader-wave 1.8s ease-in-out infinite; }
+    @keyframes loader-wave { 50% { transform: translateY(-8px) rotate(-6deg); } }
+    .loader-title { margin-top: 12px; font-weight: 800; letter-spacing: 0.12em; color: var(--deepsea); }
+    .loader-line { width: 170px; height: 3px; margin: 18px auto 0; overflow: hidden; border-radius: 999px; background: rgba(14, 147, 160, 0.15); }
+    .loader-line::after {
+      content: ""; display: block; width: 45%; height: 100%; border-radius: inherit; background: var(--sea);
+      animation: loading-line 1.2s ease-in-out infinite;
+    }
+    @keyframes loading-line { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
+
+    /* 漂うモチーフ */
+    #float-layer { position: fixed; inset: 0; z-index: 80; overflow: hidden; pointer-events: none; }
+    .drift { position: absolute; bottom: -12vh; opacity: 0.7; filter: drop-shadow(0 5px 4px rgba(10, 60, 70, 0.1));
+      animation: drift-up var(--duration) linear var(--delay) infinite; }
+    @keyframes drift-up {
+      0% { transform: translate3d(0, 15vh, 0) rotate(0deg); }
+      50% { transform: translate3d(var(--sway), -55vh, 0) rotate(120deg); }
+      100% { transform: translate3d(calc(var(--sway) * -0.6), -125vh, 0) rotate(260deg); }
+    }
+
+    /* 固定ナビ */
+    .top-button {
+      position: fixed; z-index: 90; top: max(15px, env(safe-area-inset-top)); right: 15px;
+      width: 44px; height: 44px; display: grid; place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.7); border-radius: 50%;
+      color: var(--deepsea); background: rgba(255, 253, 248, 0.8);
+      box-shadow: 0 8px 25px rgba(10, 60, 70, 0.14); backdrop-filter: blur(18px);
+      font-size: 18px; cursor: pointer;
+    }
+
+    .bottom-navigation {
+      position: fixed; z-index: 90; bottom: max(18px, env(safe-area-inset-bottom)); left: 50%;
+      display: flex; gap: 4px; padding: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.92); border-radius: 20px;
+      background: rgba(255, 253, 248, 0.86); box-shadow: 0 15px 40px rgba(10, 60, 70, 0.18);
+      backdrop-filter: blur(22px); transform: translateX(-50%);
+    }
+    .bottom-navigation a { width: 60px; padding: 7px 3px; border-radius: 15px; color: #4c6b70; text-align: center; text-decoration: none; font-size: 9px; font-weight: 800; }
+    .bottom-navigation b { display: block; margin-bottom: 3px; font-size: 17px; line-height: 1.1; }
+
+    /* 表紙 */
+    .hero {
+      position: relative; min-height: 100svh; display: grid; place-items: center;
+      overflow: hidden; isolation: isolate;
+      background:
+        linear-gradient(180deg, rgba(8, 34, 43, 0.12), rgba(8, 34, 43, 0.32) 55%, rgba(234, 246, 246, 0.98)),
+        url("https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=1800&q=88") center / cover;
+    }
+    .hero::after { content: ""; position: absolute; right: 0; bottom: 0; left: 0; height: 34%; pointer-events: none;
+      background: linear-gradient(transparent, var(--sky)); }
+    .hero-content {
+      position: relative; z-index: 3; width: min(92%, 780px); padding: 100px 18px 90px;
+      color: #ffffff; text-align: center; text-shadow: 0 4px 25px rgba(6, 30, 38, 0.45);
+      transition: opacity 0.8s ease, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .hero.is-starting .hero-content { opacity: 0.12; transform: translateY(-45px) scale(0.96); }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 15px;
+      border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14); backdrop-filter: blur(14px);
+      font-size: 12px; font-weight: 700; letter-spacing: 0.13em;
+    }
+    .hero h1 {
+      margin: 22px 0 5px; font-family: "Zen Maru Gothic", sans-serif;
+      font-size: clamp(44px, 11vw, 92px); font-weight: 700; line-height: 1; letter-spacing: -0.04em;
+    }
+    .hero-subtitle { margin: 18px auto 0; font-size: clamp(15px, 3.8vw, 20px); font-weight: 500; line-height: 1.8; letter-spacing: 0.06em; }
+    .date-pill {
+      display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; padding: 11px 18px;
+      border-radius: 18px; background: rgba(8, 34, 43, 0.28); backdrop-filter: blur(12px);
+      font-weight: 700; letter-spacing: 0.08em;
+    }
+    .countdown { margin-top: 18px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; }
+    .countdown strong { margin: 0 3px; color: #ffe9c4; font-size: 24px; }
+    .draft-note {
+      display: inline-block; margin-top: 22px; padding: 9px 16px; border-radius: 999px;
+      background: rgba(240, 120, 79, 0.85); font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
+    }
+    .start-button {
+      display: inline-flex; align-items: center; gap: 12px; margin-top: 28px; padding: 16px 24px;
+      border: 0; border-radius: 999px; color: #ffffff; background: rgba(14, 111, 122, 0.94);
+      box-shadow: 0 12px 35px rgba(6, 30, 38, 0.3); font-size: 15px; font-weight: 700; letter-spacing: 0.05em;
+      cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .start-button:active { transform: scale(0.96); }
+    .start-arrow { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
+
+    /* 共通セクション */
+    main { position: relative; z-index: 2; }
+    .section { position: relative; width: min(100%, 1100px); margin: auto; padding: 90px 20px; }
+    .section-intro { margin-bottom: 42px; text-align: center; }
+    .kicker { color: var(--coral); font-size: 12px; font-weight: 800; letter-spacing: 0.18em; }
+    .section h2, .highlight-content h2 {
+      margin: 10px 0 8px; font-family: "Zen Maru Gothic", sans-serif;
+      font-size: clamp(32px, 7.5vw, 56px); line-height: 1.16; letter-spacing: -0.03em;
+    }
+    .lead { max-width: 640px; margin: 0 auto; color: #4c6b70; font-size: 15px; line-height: 1.9; }
+
+    /* 概要 */
+    .overview {
+      position: relative; z-index: 7; width: min(calc(100% - 28px), 1040px); margin: -55px auto 20px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.85); border-radius: 28px;
+      background: rgba(255, 255, 255, 0.75); box-shadow: var(--shadow); backdrop-filter: blur(24px);
+    }
+    .overview-item { padding: 22px 18px; text-align: center; background: rgba(255, 253, 248, 0.6); }
+    .overview-icon { font-size: 23px; }
+    .overview-label { margin-top: 5px; color: #5f8288; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; }
+    .overview-value { margin-top: 5px; font-size: 13px; font-weight: 800; }
+
+    /* タイムライン */
+    .timeline { position: relative; max-width: 850px; margin: auto; }
+    .timeline::before {
+      content: ""; position: absolute; top: 20px; bottom: 20px; left: 28px; width: 2px;
+      background: linear-gradient(var(--lagoon), rgba(56, 193, 196, 0.2));
+    }
+    .timeline-item {
+      position: relative; margin-bottom: 28px; padding-left: 74px;
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.2, 0.75, 0.25, 1);
+    }
+    .timeline-item.is-visible { opacity: 1; transform: none; }
+    .time-dot {
+      position: absolute; z-index: 2; top: 25px; left: 7px; width: 44px; height: 44px;
+      display: grid; place-items: center; border: 2px solid var(--lagoon); border-radius: 50%;
+      background: var(--sky); box-shadow: 0 5px 18px rgba(14, 111, 122, 0.15); font-size: 20px;
+    }
+    .timeline-card {
+      overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.85); border-radius: var(--radius);
+      background: var(--paper); box-shadow: var(--shadow); backdrop-filter: blur(16px);
+    }
+    .timeline-card.with-photo { min-height: 270px; display: grid; grid-template-columns: 42% 58%; }
+    .card-photo { min-height: 220px; background-position: center; background-size: cover; }
+    .card-body { padding: 25px 26px; display: flex; flex-direction: column; justify-content: center; }
+    .time { color: var(--coral); font-size: 12px; font-weight: 800; letter-spacing: 0.12em; }
+    .card-body h3 { margin: 7px 0 9px; font-size: clamp(21px, 4.5vw, 29px); line-height: 1.3; }
+    .card-body p { margin: 0; color: #556f73; font-size: 14px; line-height: 1.85; }
+    .address { margin-top: 13px !important; color: #6f8a8e !important; font-size: 12px !important; }
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+    .map-button {
+      min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 10px 15px;
+      border-radius: 14px; color: #ffffff; background: var(--sea); text-decoration: none; font-size: 12px; font-weight: 800;
+    }
+    .notice { margin-top: 15px; padding: 13px 14px; border-radius: 15px; color: #7a4a1f; background: #fff1de; font-size: 12px; line-height: 1.65; }
+
+    .badge { display: inline-block; margin-left: 8px; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: 0.05em; vertical-align: middle; }
+    .badge-confirmed { color: #ffffff; background: var(--sea); }
+    .badge-pending { color: #7a4a1f; background: #ffe1b8; }
+
+    /* ハイライト（八重干瀬） */
+    .highlight-section {
+      position: relative; width: min(calc(100% - 28px), 1100px); min-height: 540px; margin: 24px auto;
+      display: flex; align-items: flex-end; overflow: hidden; border-radius: 38px; color: #ffffff;
+      background:
+        linear-gradient(transparent, rgba(6, 24, 30, 0.85)),
+        url("https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1700&q=88") center / cover;
+      box-shadow: 0 30px 70px rgba(6, 30, 38, 0.28);
+    }
+    .highlight-content { position: relative; z-index: 2; width: min(100%, 720px); padding: 44px; }
+    .highlight-content h2 { margin: 8px 0 12px; font-size: clamp(38px, 9vw, 64px); }
+    .highlight-content p { color: rgba(255, 255, 255, 0.88); line-height: 1.9; }
+    .highlight-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .highlight-tags span { padding: 8px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(12px); font-size: 12px; font-weight: 700; }
+
+    /* 決めることリスト */
+    .checklists { max-width: 900px; margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .check-card { padding: 24px; border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 28px; background: rgba(255, 253, 248, 0.86); box-shadow: var(--shadow); }
+    .check-card h3 { margin: 0 0 16px; font-size: 20px; }
+    .check-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 4px;
+      border-bottom: 1px dashed rgba(14, 111, 122, 0.16); font-size: 14px; cursor: pointer;
+    }
+    .check-item:last-child { border-bottom: 0; }
+    .check-item input { position: absolute; opacity: 0; }
+    .check-box { flex: 0 0 24px; width: 24px; height: 24px; display: grid; place-items: center; border: 2px solid #b9d4d6; border-radius: 8px; background: #ffffff; }
+    .check-item input:checked + .check-box { border-color: var(--sea); background: var(--sea); }
+    .check-item input:checked + .check-box::after { content: "✓"; color: #ffffff; font-weight: 900; }
+    .check-item input:checked ~ span:last-child { color: #9db2b4; text-decoration: line-through; }
+    .reset-button {
+      display: block; margin: 22px auto 0; padding: 11px 16px; border: 0; border-radius: 999px;
+      color: #3f5c60; background: #dcece9; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+
+    /* コンセプト */
+    .concept {
+      position: relative; margin-top: 70px; padding: 110px 20px 95px; overflow: hidden; color: #eef7f7;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(56, 193, 196, 0.32), transparent 36%),
+        linear-gradient(180deg, #103b45, var(--night));
+    }
+    .concept-content { position: relative; z-index: 2; max-width: 850px; margin: auto; text-align: center; }
+    .concept-content h2 { color: #ffffff; }
+    .concept-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 35px; }
+    .concept-card { padding: 22px 14px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 24px; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px); }
+    .concept-card b { display: block; margin-bottom: 8px; font-size: 24px; }
+    .concept-card span { color: rgba(255, 255, 255, 0.78); font-size: 12px; line-height: 1.6; }
+    .concept-note { margin-top: 24px; color: rgba(255, 255, 255, 0.62); font-size: 11px; line-height: 1.8; }
+
+    /* 方針 */
+    .policy { max-width: 720px; margin: 0 auto; padding: 24px; border-radius: 24px; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255,255,255,0.9); box-shadow: var(--shadow); text-align: left; }
+    .policy h3 { margin: 0 0 10px; font-size: 16px; }
+    .policy p { margin: 0; font-size: 13px; line-height: 1.9; color: #4c6b70; }
+
+    /* エンディング */
+    .ending {
+      min-height: 70svh; display: grid; place-items: center; padding: 100px 22px; color: #ffffff; text-align: center;
+      background:
+        linear-gradient(rgba(8, 34, 43, 0.28), rgba(8, 34, 43, 0.68)),
+        url("https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1800&q=88") center / cover;
+    }
+    .ending h2 { margin: 0 0 18px; font-family: "Zen Maru Gothic", sans-serif; font-size: clamp(42px, 11vw, 84px); }
+    .ending p { line-height: 2; letter-spacing: 0.06em; }
+    .ending-japanese { margin-top: 30px; font-size: 18px; font-weight: 700; }
+
+    @media (max-width: 760px) {
+      .overview { grid-template-columns: 1fr; }
+      .overview-item { display: grid; grid-template-columns: 34px 1fr; column-gap: 10px; align-items: center; padding: 13px 18px; text-align: left; }
+      .overview-icon { grid-row: 1 / 3; }
+      .overview-label, .overview-value { margin: 0; }
+      .timeline::before { left: 20px; }
+      .timeline-item { padding-left: 54px; }
+      .time-dot { left: 0; width: 40px; height: 40px; }
+      .timeline-card.with-photo { grid-template-columns: 1fr; }
+      .card-photo { min-height: 200px; }
+      .card-body { padding: 22px; }
+      .checklists { grid-template-columns: 1fr; }
+      .highlight-section { min-height: 580px; border-radius: 30px; }
+      .highlight-content { padding: 30px 24px; }
+      .concept-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      #float-layer { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ロード画面 -->
+  <div id="loader">
+    <div class="loader-content">
+      <div class="loader-wave">🌺</div>
+      <div class="loader-title">MIYAKOJIMA TRIP</div>
+      <div class="loader-line"></div>
+    </div>
+  </div>
+
+  <!-- 漂うモチーフ -->
+  <div id="float-layer"></div>
+
+  <!-- 上へ戻る -->
+  <button class="top-button" id="top-button">↑</button>
+
+  <!-- 下部ナビ -->
+  <nav class="bottom-navigation">
+    <a href="#day1"><b>🚗</b>DAY1</a>
+    <a href="#day2"><b>🐠</b>DAY2</a>
+    <a href="#day3"><b>🌊</b>DAY3</a>
+    <a href="#todo"><b>📝</b>TODO</a>
+  </nav>
+
+  <!-- 表紙 -->
+  <header class="hero" id="top">
+    <div class="hero-content">
+      <div class="eyebrow">🌺 MIYAKOJIMA TRIP 2027</div>
+      <h1>Miyakojima<br>Trip</h1>
+      <p class="hero-subtitle">海遊びは前浜＋八重干瀬。<br>絶景と食事で楽しむ、2泊3日の宮古島。</p>
+      <div class="date-pill">2027.09.28<span>→</span>09.30</div>
+      <p class="countdown" id="countdown">旅行まであと <strong>--</strong> 日</p>
+      <div class="draft-note">📋 これは友人共有用の仮版です</div>
+      <br>
+      <button class="start-button" id="start-button">旅をはじめる<span class="start-arrow">↓</span></button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- 概要 -->
+    <section class="overview">
+      <div class="overview-item">
+        <div class="overview-icon">📅</div>
+        <div class="overview-label">DATE</div>
+        <div class="overview-value">9月28日（火）– 30日（木）</div>
+      </div>
+      <div class="overview-item">
+        <div class="overview-icon">🏡</div>
+        <div class="overview-label">STAY</div>
+        <div class="overview-value">CALM House（仮決定候補）</div>
+      </div>
+      <div class="overview-item">
+        <div class="overview-icon">🌺</div>
+        <div class="overview-label">THEME</div>
+        <div class="overview-value">海・絶景・宮古の食</div>
+      </div>
+    </section>
+
+    <!-- DAY1 -->
+    <section class="section" id="day1">
+      <div class="section-intro">
+        <div class="kicker">DAY 01 · TUESDAY</div>
+        <h2>朝一便で、宮古島へ。</h2>
+        <p class="lead">前浜ビーチで海遊び、宮古そばを食べて、オープンカーで伊良部大橋と17ENDへ。夜は郷家で乾杯。</p>
+      </div>
+
+      <div class="timeline">
+
+        <article class="timeline-item">
+          <div class="time-dot">🛫</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">07:00頃 / 09:30頃</div>
+              <h3>セントレア発 → 宮古島着</h3>
+              <p>朝一便でセントレアを出発。9:30頃に宮古島空港へ到着します。<span class="badge badge-pending">航空券 検討中</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🚙</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">10:00〜10:30</div>
+              <h3>レンタカー受取</h3>
+              <p>8人乗りミニバン1台＋オープンカー1台を受け取ります。<span class="badge badge-pending">料金 検討中</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🏖️</div>
+          <div class="timeline-card with-photo">
+            <div class="card-photo" style="background-image:url('https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1000&q=82');"></div>
+            <div class="card-body">
+              <div class="time">11:00〜13:00</div>
+              <h3>与那覇前浜ビーチ</h3>
+              <p>海遊びメイン。真っ白な砂浜とエメラルドグリーンの海でゆっくり過ごします。</p>
+              <div class="actions">
+                <a class="map-button" href="https://www.google.com/maps/search/?api=1&query=与那覇前浜ビーチ" target="_blank">🗺 ナビを開始</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🍜</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">13:15〜14:00</div>
+              <h3>宮古そば</h3>
+              <p>海遊びのあとは宮古そばでお昼ごはん。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🌉</div>
+          <div class="timeline-card with-photo">
+            <div class="card-photo" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=82');"></div>
+            <div class="card-body">
+              <div class="time">14:30〜15:00</div>
+              <h3>伊良部大橋ドライブ</h3>
+              <p>オープンカーで爽快に走り抜けます。海の上を走るような絶景ドライブ。</p>
+              <div class="actions">
+                <a class="map-button" href="https://www.google.com/maps/search/?api=1&query=伊良部大橋" target="_blank">🗺 ナビを開始</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">📸</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">15:00〜16:00</div>
+              <h3>17END</h3>
+              <p>景色・写真中心。宮古島らしい海と滑走路の絶景スポット。</p>
+              <div class="actions">
+                <a class="map-button" href="https://www.google.com/maps/search/?api=1&query=17END 宮古島" target="_blank">🗺 ナビを開始</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🏡</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">16:30〜17:30</div>
+              <h3>CALM House チェックイン・休憩<span class="badge badge-pending">仮決定候補</span></h3>
+              <p>荷物を置いて、少し休憩してから夕食へ。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🍶</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">19:00〜21:00</div>
+              <h3>郷家で夕食<span class="badge badge-pending">8人予約 検討中</span></h3>
+              <p>8人での予約を検討中。飲酒するため、帰りはタクシー等で運転不要にします。</p>
+              <div class="notice">🚕 21:00頃〜 タクシー等でCALM Houseへ</div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 八重干瀬（ハイライト） -->
+    <section class="highlight-section" id="day2">
+      <div class="highlight-content">
+        <div class="kicker" style="color:#a4e9ec;">DAY 02 · MAIN EVENT</div>
+        <h2>八重干瀬</h2>
+        <p>日本最大級のサンゴ礁「やびじ」でシュノーケリング。潮位・海況・ツアー時間を最優先に調整します。</p>
+        <div class="highlight-tags">
+          <span>🐠 シュノーケリング</span>
+          <span>🌊 潮位確認</span>
+          <span>⛴️ ツアー時間 検討中</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- DAY2 続き -->
+    <section class="section">
+      <div class="section-intro">
+        <div class="kicker">DAY 02 · WEDNESDAY</div>
+        <h2>やびじの海を、満喫する日。</h2>
+        <p class="lead">午前は八重干瀬ツアー、夜はアグー豚など沖縄料理でしっかり食べます。</p>
+      </div>
+
+      <div class="timeline">
+
+        <article class="timeline-item">
+          <div class="time-dot">☕</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">08:00頃</div>
+              <h3>朝食</h3>
+              <p>宿でゆっくり朝ごはん。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🐠</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">午前</div>
+              <h3>八重干瀬ツアー<span class="badge badge-pending">検討中</span></h3>
+              <p>潮位・海況・出航時間・料金は最新情報を確認して確定します。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🍽️</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">13:00頃</div>
+              <h3>昼食</h3>
+              <p>ツアー後にランチ休憩。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🛌</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">15:00頃 / 17:00頃</div>
+              <h3>宿で休憩 → 買い物・自由時間</h3>
+              <p>海遊びの疲れを癒やしてから、街で買い物や散策を楽しみます。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🐷</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">18:00〜20:00</div>
+              <h3>アグー豚など沖縄料理<span class="badge badge-pending">店選び 検討中</span></h3>
+              <p>BBQは必須ではなく、アグー豚をはじめとした沖縄料理を予定。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🌙</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">夜</div>
+              <h3>宿でゆっくり</h3>
+              <p>2日目の夜は宿で静かに過ごします。</p>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- DAY3 -->
+    <section class="section" id="day3">
+      <div class="section-intro">
+        <div class="kicker">DAY 03 · THURSDAY</div>
+        <h2>最後にイムギャー、そして帰路。</h2>
+        <p class="lead">午前はイムギャーマリンガーデンで景色を楽しみ、お土産を買ってから空港へ。</p>
+      </div>
+
+      <div class="timeline">
+
+        <article class="timeline-item">
+          <div class="time-dot">🍳</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">08:00〜09:00</div>
+              <h3>朝食</h3>
+              <p>3日目の朝食。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🧳</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">10:00</div>
+              <h3>チェックアウト</h3>
+              <p>CALM Houseをチェックアウトします。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🌊</div>
+          <div class="timeline-card with-photo">
+            <div class="card-photo" style="background-image:url('https://images.unsplash.com/photo-1590523278191-995cbcda646b?auto=format&fit=crop&w=1000&q=82');"></div>
+            <div class="card-body">
+              <div class="time">10:30〜12:00</div>
+              <h3>イムギャーマリンガーデン</h3>
+              <p>入り江に囲まれた穏やかな海。最後の絶景スポットでゆっくり過ごします。</p>
+              <div class="actions">
+                <a class="map-button" href="https://www.google.com/maps/search/?api=1&query=イムギャーマリンガーデン" target="_blank">🗺 ナビを開始</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🍽️</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">12:00〜13:00</div>
+              <h3>昼食</h3>
+              <p>最後のランチ。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🛍️</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">13:00〜14:00</div>
+              <h3>お土産・市街地</h3>
+              <p>市街地でお土産を買います。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🚙</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">14:30頃</div>
+              <h3>レンタカー返却</h3>
+              <p>2台とも返却します。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <div class="time-dot">🛫</div>
+          <div class="timeline-card">
+            <div class="card-body">
+              <div class="time">夕方〜最終便</div>
+              <h3>宮古島 → セントレア</h3>
+              <p>夕方〜最終便を希望。<span class="badge badge-pending">航空券 検討中</span></p>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 今後決めること -->
+    <section class="section" id="todo">
+      <div class="section-intro">
+        <div class="kicker">TO DECIDE</div>
+        <h2>今後決めること</h2>
+        <p class="lead">確定情報と予想（仮）を分けて管理します。決まったら随時更新してください。</p>
+      </div>
+
+      <div class="checklists">
+        <div class="check-card">
+          <h3>✈️ 手配・予約</h3>
+          <label class="check-item"><input data-name="flight" type="checkbox"><span class="check-box"></span><span>航空券（9/28朝一・9/30夕方〜最終便、セール確認）</span></label>
+          <label class="check-item"><input data-name="yabiji" type="checkbox"><span class="check-box"></span><span>八重干瀬ツアー（潮位・海況・出航時間・料金）</span></label>
+          <label class="check-item"><input data-name="rentalcar" type="checkbox"><span class="check-box"></span><span>レンタカー（ミニバン＋オープンカー、料金・受取返却）</span></label>
+          <label class="check-item"><input data-name="calmhouse" type="checkbox"><span class="check-box"></span><span>CALM House（料金・キャンセル条件・8人利用条件）</span></label>
+        </div>
+        <div class="check-card">
+          <h3>🍽️ 食事・費用</h3>
+          <label class="check-item"><input data-name="gouya" type="checkbox"><span class="check-box"></span><span>郷家（8人予約・時間・帰りの交通手段）</span></label>
+          <label class="check-item"><input data-name="aguu" type="checkbox"><span class="check-box"></span><span>2日目のアグー豚（店選び・予約・料金）</span></label>
+          <label class="check-item"><input data-name="timing" type="checkbox"><span class="check-box"></span><span>各観光地の滞在・移動時間</span></label>
+          <label class="check-item"><input data-name="budget" type="checkbox"><span class="check-box"></span><span>最終的な旅行費用（1人あたり）</span></label>
+        </div>
+      </div>
+
+      <button class="reset-button" id="reset-button">チェックをリセット</button>
+    </section>
+
+    <!-- コンセプト -->
+    <section class="concept">
+      <div class="concept-content">
+        <div class="kicker" style="color:#a4e9ec;">TRIP CONCEPT</div>
+        <h2>宮古島らしさを、しっかり楽しむ。</h2>
+        <div class="concept-cards">
+          <div class="concept-card"><b>🏖️</b><span>海遊びは<br>前浜＋八重干瀬</span></div>
+          <div class="concept-card"><b>🌉</b><span>絶景は<br>17END＋伊良部大橋<br>＋イムギャー</span></div>
+          <div class="concept-card"><b>🍜</b><span>食事は<br>宮古そば＋郷家<br>＋アグー豚</span></div>
+          <div class="concept-card"><b>🚗</b><span>ドライブは<br>オープンカー</span></div>
+        </div>
+        <div class="concept-note">2泊3日でも宮古島らしさをしっかり楽しむ旅にします。</div>
+      </div>
+    </section>
+
+    <!-- パンフレット方針 -->
+    <section class="section">
+      <div class="policy">
+        <h3>📋 このパンフレットについて</h3>
+        <p>
+          現在は友人に旅行のイメージを共有する仮版です。正式版では各スポットの写真、航空便、宿泊料金、レンタカー、八重干瀬ツアー、1人あたり費用、持ち物、旅のしおりを追加していきます。
+          料金や予約状況は最新情報を確認し、確定情報と予想（仮）を分けて表示します。
+        </p>
+      </div>
+    </section>
+
+    <!-- エンディング -->
+    <footer class="ending">
+      <div>
+        <div class="eyebrow">MIYAKOJIMA · 2027.09</div>
+        <h2>See you there.</h2>
+        <p>Two nights.<br>Three days.<br>One island paradise.</p>
+        <p class="ending-japanese">やびじの海で、待ってます。</p>
+      </div>
+    </footer>
+
+  </main>
+
+  <script>
+    (() => {
+      const $ = selector => document.querySelector(selector);
+      const $$ = selector => [...document.querySelectorAll(selector)];
+
+      /* ロード画面を閉じる */
+      const hideLoader = () => {
+        const loader = $("#loader");
+        if (loader) loader.classList.add("is-hidden");
+      };
+      document.addEventListener("DOMContentLoaded", () => setTimeout(hideLoader, 700));
+      window.addEventListener("load", hideLoader);
+      setTimeout(hideLoader, 2600);
+
+      /* カウントダウン */
+      const tripDate = new Date("2027-09-28T00:00:00+09:00");
+      const today = new Date();
+      const days = Math.ceil((tripDate - today) / 86400000);
+      const countdown = $("#countdown");
+      if (countdown) {
+        if (days > 0) {
+          countdown.innerHTML = `旅行まであと <strong>${days}</strong> 日`;
+        } else if (days === 0) {
+          countdown.innerHTML = `いよいよ <strong>今日</strong> 出発！`;
+        } else {
+          countdown.innerHTML = `あの日から <strong>${Math.abs(days)}</strong> 日`;
+        }
+      }
+
+      /* 漂うモチーフ */
+      const floatLayer = $("#float-layer");
+      const motifs = ["🌺", "🐠", "🌊"];
+      if (floatLayer) {
+        for (let index = 0; index < 16; index++) {
+          const drift = document.createElement("span");
+          drift.className = "drift";
+          drift.textContent = motifs[Math.floor(Math.random() * motifs.length)];
+          drift.style.left = `${Math.random() * 100}vw`;
+          drift.style.fontSize = `${12 + Math.random() * 17}px`;
+          drift.style.setProperty("--duration", `${10 + Math.random() * 11}s`);
+          drift.style.setProperty("--delay", `${-Math.random() * 18}s`);
+          drift.style.setProperty("--sway", `${-70 + Math.random() * 140}px`);
+          floatLayer.appendChild(drift);
+        }
+      }
+
+      /* 旅をはじめる */
+      const startButton = $("#start-button");
+      if (startButton) {
+        startButton.addEventListener("click", () => {
+          const hero = $(".hero");
+          if (hero) hero.classList.add("is-starting");
+          setTimeout(() => {
+            const day1 = $("#day1");
+            if (day1) day1.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 400);
+          setTimeout(() => {
+            if (hero) hero.classList.remove("is-starting");
+          }, 1400);
+        });
+      }
+
+      /* カードをふわっと表示 */
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add("is-visible");
+          });
+        }, { threshold: 0.12 });
+        $$(".timeline-item").forEach(item => observer.observe(item));
+      } else {
+        $$(".timeline-item").forEach(item => item.classList.add("is-visible"));
+      }
+
+      /* 決めることチェックリスト */
+      $$("input[data-name]").forEach(input => {
+        const key = `miyako-${input.dataset.name}`;
+        try {
+          input.checked = localStorage.getItem(key) === "1";
+        } catch (error) {
+          input.checked = false;
+        }
+        input.addEventListener("change", () => {
+          try {
+            localStorage.setItem(key, input.checked ? "1" : "0");
+          } catch (error) {
+            /* 保存できない環境では無視 */
+          }
+        });
+      });
+
+      const resetButton = $("#reset-button");
+      if (resetButton) {
+        resetButton.addEventListener("click", () => {
+          $$("input[data-name]").forEach(input => {
+            input.checked = false;
+            try {
+              localStorage.removeItem(`miyako-${input.dataset.name}`);
+            } catch (error) {
+              /* 保存できない環境では無視 */
+            }
+          });
+        });
+      }
+
+      /* 上へ戻る */
+      const topButton = $("#top-button");
+      if (topButton) {
+        topButton.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+      }
+    })();
+  </script>
+
+</body>
+</html>
