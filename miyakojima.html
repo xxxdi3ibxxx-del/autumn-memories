@@ -222,6 +222,7 @@
     .photo-placeholder { text-align: center; color: #3f7278; }
     .photo-placeholder-icon { font-size: 32px; }
     .photo-placeholder-text { display: block; margin-top: 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; }
+    .card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .card-body { padding: 25px 26px; display: flex; flex-direction: column; justify-content: center; }
     .time { color: var(--coral); font-size: 12px; font-weight: 800; letter-spacing: 0.12em; }
     .card-body h3 { margin: 7px 0 9px; font-size: clamp(21px, 4.5vw, 29px); line-height: 1.3; }
@@ -450,7 +451,7 @@
           <div class="time-dot">🏖️</div>
           <div class="timeline-card with-photo">
             <!-- photo: 与那覇前浜ビーチ -->
-            <div class="card-photo"><div class="photo-placeholder"><span class="photo-placeholder-icon">🏖️</span><span class="photo-placeholder-text">写真準備中</span></div></div>
+            <div class="card-photo"><img src="images/maehama-beach.jpg" alt="与那覇前浜ビーチ" loading="lazy"></div>
             <div class="card-body">
               <div class="time">11:00〜13:00</div>
               <h3>与那覇前浜ビーチ</h3>
@@ -495,7 +496,7 @@
           <div class="time-dot">📸</div>
           <div class="timeline-card with-photo">
             <!-- photo: 17END -->
-            <div class="card-photo"><div class="photo-placeholder"><span class="photo-placeholder-icon">📸</span><span class="photo-placeholder-text">写真準備中</span></div></div>
+            <div class="card-photo"><img src="images/17end.jpg" alt="17END" loading="lazy"></div>
             <div class="card-body">
               <div class="time">15:00〜16:00</div>
               <h3>17END</h3>
@@ -527,7 +528,7 @@
           <div class="time-dot">🍶</div>
           <div class="timeline-card with-photo">
             <!-- photo: 郷家 -->
-            <div class="card-photo"><div class="photo-placeholder"><span class="photo-placeholder-icon">🍶</span><span class="photo-placeholder-text">写真準備中</span></div></div>
+            <div class="card-photo"><img src="images/gouya.jpg" alt="郷家" loading="lazy"></div>
             <div class="card-body">
               <div class="time">19:00〜21:00</div>
               <h3>郷家で夕食<span class="badge badge-pending">8人予約 検討中</span></h3>
