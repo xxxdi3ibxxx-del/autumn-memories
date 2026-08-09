@@ -920,6 +920,14 @@
         $$(".timeline-item").forEach(item => item.classList.add("is-visible"));
       }
 
+      /*
+      プレビュー用のアプリ内ビューアなどでスクロール検知が
+      発火しない場合に備え、一定時間後は強制的に表示する
+      */
+      setTimeout(() => {
+        $$(".timeline-item").forEach(item => item.classList.add("is-visible"));
+      }, 2000);
+
       /* 決めることチェックリスト */
       $$("input[data-name]").forEach(input => {
         const key = `miyako-${input.dataset.name}`;
