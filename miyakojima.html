@@ -107,15 +107,13 @@
     .hero::after { content: ""; position: absolute; z-index: 2; right: 0; bottom: 0; left: 0; height: 30%; pointer-events: none;
       background: linear-gradient(transparent, var(--sky)); }
     .hero-sun {
-      position: absolute; z-index: 1; left: 15%; top: 62%; transform: translate(-50%, -50%);
-      width: 110px; height: 110px; border-radius: 50%; pointer-events: none;
+      position: fixed; z-index: 85; top: max(90px, calc(env(safe-area-inset-top) + 70px)); left: 10%;
+      transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; pointer-events: none;
       background: radial-gradient(circle at 35% 32%, #fff8e6, #ffd76a 45%, #ff9455 78%, transparent 80%);
-      box-shadow: 0 0 70px 24px rgba(255, 178, 110, 0.4);
-      transition: left 0.05s linear, top 0.05s linear, opacity 0.2s ease;
+      box-shadow: 0 0 42px 14px rgba(255, 178, 110, 0.4);
+      opacity: 0.85; transition: left 0.08s linear, opacity 0.3s ease;
     }
-    @media (max-width: 760px) {
-      .hero-sun { width: 68px; height: 68px; box-shadow: 0 0 42px 14px rgba(255, 178, 110, 0.4); }
-    }
+    .hero-sun.is-hidden { opacity: 0; }
     .hero-content {
       position: relative; z-index: 3; width: min(92%, 780px); padding: 100px 18px 90px;
       color: #ffffff; text-align: center; text-shadow: 0 4px 25px rgba(6, 30, 38, 0.45);
@@ -862,28 +860,25 @@
         }
       }
 
-      /* 表紙の太陽：スクロールで日の出→真昼→日の入りの弧を描く */
+      /* 表紙の太陽：スクロールで左から右へ、時間が進むように動く */
       const heroEl = $(".hero");
       const sunEl = $("#hero-sun");
       if (heroEl && sunEl) {
-        let sunTicking = false;
         const updateSun = () => {
           const heroHeight = heroEl.offsetHeight || window.innerHeight;
           const progress = Math.min(1, Math.max(0, window.scrollY / heroHeight));
-          const x = 15 + progress * 70;
-          const y = 62 - Math.sin(progress * Math.PI) * 42;
-          sunEl.style.left = `${x}%`;
-          sunEl.style.top = `${y}%`;
-          sunEl.style.opacity = String(1 - progress * 0.15);
-          sunTicking = false;
+          sunEl.style.left = `${10 + progress * 80}%`;
+          sunEl.classList.toggle("is-hidden", progress >= 1);
         };
-        window.addEventListener("scroll", () => {
-          if (!sunTicking) {
-            requestAnimationFrame(updateSun);
-            sunTicking = true;
-          }
-        }, { passive: true });
-        updateSun();
+        /*
+        scrollイベントが発火しない環境(一部のアプリ内プレビュー等)でも
+        必ず動くよう、rAFで毎フレーム位置を読み直す方式にしている
+        */
+        const loop = () => {
+          updateSun();
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
       }
 
       /* 旅をはじめる */
