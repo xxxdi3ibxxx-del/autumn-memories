@@ -861,6 +861,35 @@
         }
       }
 
+      /*
+      写真のスクロール連動ズーム(JS版)
+      CSSのScroll-driven Animations(animation-timeline: view())に
+      対応していないブラウザでも動くよう、JSで直接計算して
+      transformを当てるフォールバックを用意する。対応ブラウザでは
+      CSSアニメーションの方が優先されるため、二重に動くことはない。
+      */
+      const zoomPhotos = $$(".card-photo img");
+      if (zoomPhotos.length) {
+        const updateZoom = () => {
+          const viewportCenter = window.innerHeight / 2;
+          zoomPhotos.forEach(img => {
+            const rect = img.getBoundingClientRect();
+            if (rect.height === 0) return;
+            const imgCenter = rect.top + rect.height / 2;
+            const distance = Math.abs(imgCenter - viewportCenter);
+            const maxDistance = viewportCenter + rect.height / 2;
+            const progress = Math.min(1, distance / maxDistance);
+            const scale = 1 + (1 - progress) * 0.14;
+            img.style.transform = `scale(${scale.toFixed(3)})`;
+          });
+        };
+        const zoomLoop = () => {
+          updateZoom();
+          requestAnimationFrame(zoomLoop);
+        };
+        requestAnimationFrame(zoomLoop);
+      }
+
       /* 漂うモチーフ */
       const floatLayer = $("#float-layer");
       const motifs = ["🌺", "🐠", "🌊"];
