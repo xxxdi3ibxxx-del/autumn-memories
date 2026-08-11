@@ -109,7 +109,7 @@
     .wave-day.is-current .wave-day-label { color: var(--coral); }
     .wave-indicator {
       position: absolute; transform: translate(-50%, -50%); z-index: 3; pointer-events: none;
-      transition: left 0.65s cubic-bezier(0.3, 1.3, 0.4, 1), top 0.65s cubic-bezier(0.3, 1.3, 0.4, 1);
+      transition: left 0.12s linear, top 0.12s linear;
     }
     .wave-indicator-dot {
       position: relative; z-index: 2; display: block; width: 10px; height: 10px; border-radius: 50%;
@@ -948,8 +948,9 @@
       /*
       波タイムラインの現在地検知
       scrollイベントに頼らずrAFで毎フレーム現在位置を読み直し、
-      DAY1〜3のどのセクションを見ているかを判定して
-      インジケーターを移動させる。
+      DAY1〜3のスクロール量に応じてインジケーターを波の上で
+      連続的に(瞬間移動ではなく)動かす。日程の丸の強調表示は
+      現在どのDAYを見ているかで切り替える。
       */
       const day1El = $("#day1");
       const day2El = $("#day2");
@@ -957,44 +958,56 @@
       const todoEl = $("#todo");
       const waveDayEls = $$(".wave-day");
       const waveIndicator = $("#wave-indicator");
-      const wavePositions = {
-        1: { left: "16.67%", top: "27%" },
-        2: { left: "50%", top: "83%" },
-        3: { left: "83.33%", top: "27%" }
-      };
+
+      /* 波の形(y = 55 - 28*sin(2π*x/800))上でDAY1=200, DAY2=600, DAY3=1000 */
+      const waveMidY = 55;
+      const waveAmp = 28;
+      const wavePeriod = 800;
+      const waveX = { 1: 200, 2: 600, 3: 1000 };
+      const yForX = x => waveMidY - waveAmp * Math.sin((2 * Math.PI * x) / wavePeriod);
 
       if (day1El && day2El && day3El && waveIndicator) {
         let currentWaveDay = 1;
 
         const docTop = el => el.getBoundingClientRect().top + window.scrollY;
 
-        const detectDay = () => {
+        const updateWave = () => {
           const refY = window.scrollY + window.innerHeight * 0.35;
-          if (refY < docTop(day2El)) return 1;
-          if (refY < docTop(day3El)) return 2;
-          return 3;
-        };
+          const day1Top = docTop(day1El);
+          const day2Top = docTop(day2El);
+          const day3Top = docTop(day3El);
 
-        const setWaveDay = day => {
-          if (day === currentWaveDay) return;
-          currentWaveDay = day;
+          let x;
+          if (refY <= day1Top) {
+            x = waveX[1];
+          } else if (refY >= day3Top) {
+            x = waveX[3];
+          } else if (refY <= day2Top) {
+            const t = (refY - day1Top) / (day2Top - day1Top);
+            x = waveX[1] + t * (waveX[2] - waveX[1]);
+          } else {
+            const t = (refY - day2Top) / (day3Top - day2Top);
+            x = waveX[2] + t * (waveX[3] - waveX[2]);
+          }
 
-          waveDayEls.forEach(el => {
-            el.classList.toggle("is-current", Number(el.dataset.day) === day);
-          });
+          waveIndicator.style.left = `${(x / 1200) * 100}%`;
+          waveIndicator.style.top = `${yForX(x)}%`;
 
-          const pos = wavePositions[day];
-          waveIndicator.style.left = pos.left;
-          waveIndicator.style.top = pos.top;
-
-          /* クラスを一度外して再度付けることでアニメーションを再生し直す */
-          waveIndicator.classList.remove("is-active");
-          void waveIndicator.offsetWidth;
-          waveIndicator.classList.add("is-active");
+          const day = refY < day2Top ? 1 : refY < day3Top ? 2 : 3;
+          if (day !== currentWaveDay) {
+            currentWaveDay = day;
+            waveDayEls.forEach(el => {
+              el.classList.toggle("is-current", Number(el.dataset.day) === day);
+            });
+            /* クラスを一度外して再度付けることでアニメーションを再生し直す */
+            waveIndicator.classList.remove("is-active");
+            void waveIndicator.offsetWidth;
+            waveIndicator.classList.add("is-active");
+          }
         };
 
         const waveLoop = () => {
-          setWaveDay(detectDay());
+          updateWave();
           requestAnimationFrame(waveLoop);
         };
         requestAnimationFrame(waveLoop);
