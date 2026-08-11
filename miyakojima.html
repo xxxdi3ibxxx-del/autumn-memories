@@ -209,6 +209,33 @@
     .photo-placeholder-icon { font-size: 32px; }
     .photo-placeholder-text { display: block; margin-top: 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; }
     .card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /*
+    写真がスクロールで画面中央に近づくと大きく、
+    画面の端に近づくと元のサイズに戻るズーム演出。
+    対応ブラウザのみCSSだけで動作し、非対応環境では
+    通常表示のまま(何も壊れない)。
+    */
+    @keyframes photo-scroll-scale {
+      from { transform: scale(1); }
+      50% { transform: scale(1.14); }
+      to { transform: scale(1); }
+    }
+    @supports (animation-timeline: view()) {
+      /*
+      写真(img)に直接animation-timeline:view()を付けると、祖先の
+      .timeline-card(角丸クリッピング用のoverflow:hidden)が
+      基準にされてしまい、実際のスクロール位置と連動しなくなる。
+      overflow:hiddenを持つ.timeline-card自身に名前付きタイムラインを
+      持たせ、中のimgからそれを参照することで正しく連動させる。
+      */
+      .timeline-card.with-photo { view-timeline-name: --photo-view; view-timeline-axis: block; }
+      .card-photo img {
+        animation: photo-scroll-scale linear both;
+        animation-timeline: --photo-view;
+        animation-range: cover 0% cover 100%;
+      }
+    }
     .card-body { padding: 25px 26px; display: flex; flex-direction: column; justify-content: center; }
     .time { color: var(--coral); font-size: 12px; font-weight: 800; letter-spacing: 0.12em; }
     .card-body h3 { margin: 7px 0 9px; font-size: clamp(21px, 4.5vw, 29px); line-height: 1.3; }
