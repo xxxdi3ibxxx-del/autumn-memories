@@ -259,6 +259,20 @@
       color: #3f5c60; background: #dcece9; font-size: 12px; font-weight: 700; cursor: pointer;
     }
 
+    /* 概算見積もり */
+    .estimate-row {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+      padding: 11px 4px; border-bottom: 1px dashed rgba(14, 111, 122, 0.16); font-size: 14px;
+    }
+    .estimate-row:last-of-type { border-bottom: 0; }
+    .estimate-row span:first-child { color: #4c6b70; }
+    .estimate-row span:last-child { font-weight: 800; text-align: right; white-space: nowrap; }
+    .estimate-total {
+      margin-top: 14px; padding: 12px 14px; border-radius: 14px;
+      background: #eaf6f6; color: var(--deepsea); font-size: 13px; font-weight: 800; text-align: center;
+    }
+    .estimate-note { margin-top: 12px; font-size: 11px; line-height: 1.7; color: #8a9a9c; }
+
     /* コンセプト */
     .concept {
       position: relative; margin-top: 70px; padding: 110px 20px 95px; overflow: hidden; color: #eef7f7;
@@ -718,6 +732,36 @@
       </div>
 
       <button class="reset-button" id="reset-button">チェックをリセット</button>
+    </section>
+
+    <!-- 概算見積もり -->
+    <section class="section" id="estimate" style="padding-top: 0;">
+      <div class="section-intro">
+        <div class="kicker">ROUGH ESTIMATE</div>
+        <h2>現時点の概算</h2>
+        <p class="lead">2027年9月時点で分かっている情報からの目安です。確定情報ではないため、予約前に必ず最新情報を確認してください。</p>
+      </div>
+
+      <div class="checklists">
+        <div class="check-card">
+          <h3>✈️ 航空便（中部⇔宮古空港）</h3>
+          <div class="estimate-row"><span>直行便の運航会社</span><span>ANAのみ<span class="badge badge-pending">他社は那覇乗継</span></span></div>
+          <div class="estimate-row"><span>行き ANA329</span><span>中部 11:35 → 宮古 14:05</span></div>
+          <div class="estimate-row"><span>帰り ANA330</span><span>宮古 14:50頃 → 中部 17:15頃</span></div>
+          <div class="estimate-note">
+            中部⇔宮古空港は季節運航(3月頃〜10月頃)の1日1往復のみで、時間帯を選べる便自体がありません。2027年9月分の正式な時刻表は未発表のため、上記は直近シーズンの実績を参考にした予想値です。宮古島到着は9:30ではなく14:00頃になる点に注意。
+          </div>
+        </div>
+        <div class="check-card">
+          <h3>🚗 レンタカー概算（3日間・2台）</h3>
+          <div class="estimate-row"><span>ミニバン（8人乗り）</span><span>¥13,000〜25,000 / 日</span></div>
+          <div class="estimate-row"><span>オープンカー</span><span>¥11,500〜20,000 / 日</span></div>
+          <div class="estimate-total">2台 × 3日間 合計目安　¥85,000〜110,000程度</div>
+          <div class="estimate-note">
+            9/28(火)〜30(木)は祝日と重ならない平日日程で、繁忙期の料金ではない前提の相場。免責補償・ガソリン満タン返却などのオプションは別途。
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- コンセプト -->
