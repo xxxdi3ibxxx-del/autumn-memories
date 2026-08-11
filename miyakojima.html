@@ -106,14 +106,6 @@
     }
     .hero::after { content: ""; position: absolute; z-index: 2; right: 0; bottom: 0; left: 0; height: 30%; pointer-events: none;
       background: linear-gradient(transparent, var(--sky)); }
-    .hero-sun {
-      position: fixed; z-index: 85; top: max(90px, calc(env(safe-area-inset-top) + 70px)); left: 10%;
-      transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; pointer-events: none;
-      background: radial-gradient(circle at 35% 32%, #fff8e6, #ffd76a 45%, #ff9455 78%, transparent 80%);
-      box-shadow: 0 0 42px 14px rgba(255, 178, 110, 0.4);
-      opacity: 0.85; transition: left 0.08s linear, opacity 0.3s ease;
-    }
-    .hero-sun.is-hidden { opacity: 0; }
     .hero-content {
       position: relative; z-index: 3; width: min(92%, 780px); padding: 100px 18px 90px;
       color: #ffffff; text-align: center; text-shadow: 0 4px 25px rgba(6, 30, 38, 0.45);
@@ -363,7 +355,6 @@
 
   <!-- 表紙 -->
   <header class="hero" id="top">
-    <div class="hero-sun" id="hero-sun"></div>
     <div class="hero-content">
       <div class="eyebrow">🌺 MIYAKOJIMA TRIP 2027</div>
       <h1>Miyakojima<br>Trip</h1>
@@ -858,27 +849,6 @@
           drift.style.setProperty("--sway", `${-70 + Math.random() * 140}px`);
           floatLayer.appendChild(drift);
         }
-      }
-
-      /* 表紙の太陽：スクロールで左から右へ、時間が進むように動く */
-      const heroEl = $(".hero");
-      const sunEl = $("#hero-sun");
-      if (heroEl && sunEl) {
-        const updateSun = () => {
-          const heroHeight = heroEl.offsetHeight || window.innerHeight;
-          const progress = Math.min(1, Math.max(0, window.scrollY / heroHeight));
-          sunEl.style.left = `${10 + progress * 80}%`;
-          sunEl.classList.toggle("is-hidden", progress >= 1);
-        };
-        /*
-        scrollイベントが発火しない環境(一部のアプリ内プレビュー等)でも
-        必ず動くよう、rAFで毎フレーム位置を読み直す方式にしている
-        */
-        const loop = () => {
-          updateSun();
-          requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
       }
 
       /* 旅をはじめる */
