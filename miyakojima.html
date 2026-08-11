@@ -79,11 +79,13 @@
 
     /* 波タイムライン（画面上部固定） */
     .wave-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 70; height: var(--wave-nav-h);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 70;
+      height: calc(var(--wave-nav-h) + max(22px, env(safe-area-inset-top)));
       background: rgba(250, 244, 230, 0.86); backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.6);
       box-shadow: 0 8px 24px rgba(10, 60, 70, 0.08);
     }
+    .wave-nav-inner { position: absolute; left: 0; right: 0; bottom: 0; height: var(--wave-nav-h); }
     .wave-nav-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     .wave-day {
       position: absolute; transform: translate(-50%, -50%); z-index: 2;
@@ -161,7 +163,7 @@
 
     /* 固定ナビ */
     .top-button {
-      position: fixed; z-index: 90; top: calc(var(--wave-nav-h) + max(10px, env(safe-area-inset-top))); right: 15px;
+      position: fixed; z-index: 90; top: calc(var(--wave-nav-h) + max(22px, env(safe-area-inset-top)) + 10px); right: 15px;
       width: 44px; height: 44px; display: grid; place-items: center;
       border: 1px solid rgba(255, 255, 255, 0.7); border-radius: 50%;
       color: var(--deepsea); background: rgba(255, 253, 248, 0.8);
@@ -229,7 +231,7 @@
     /* 共通セクション */
     main { position: relative; z-index: 2; }
     .section { position: relative; width: min(100%, 1100px); margin: auto; padding: 90px 20px; }
-    #day1, #day2, #day3, #todo { scroll-margin-top: var(--wave-nav-h); }
+    #day1, #day2, #day3, #todo { scroll-margin-top: calc(var(--wave-nav-h) + 22px); }
     .section-intro { margin-bottom: 42px; text-align: center; }
     .kicker { color: var(--coral); font-size: 12px; font-weight: 800; letter-spacing: 0.18em; }
     .section h2, .highlight-content h2 {
@@ -457,6 +459,7 @@
 
   <!-- 波タイムライン（画面上部固定） -->
   <nav class="wave-nav" id="wave-nav" aria-label="旅程タイムライン">
+   <div class="wave-nav-inner">
     <svg class="wave-nav-svg" viewBox="0 0 1200 100" preserveAspectRatio="none">
       <path
         fill="none" stroke="#b8dede" stroke-width="3" stroke-linecap="round"
@@ -488,6 +491,7 @@
       <span class="wave-indicator-ripple"></span>
       <span class="wave-indicator-dot"></span>
     </div>
+   </div>
   </nav>
 
   <!-- 漂うモチーフ -->
