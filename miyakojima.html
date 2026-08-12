@@ -244,7 +244,7 @@
       background: linear-gradient(var(--lagoon), rgba(56, 193, 196, 0.2));
     }
     .timeline-item {
-      position: relative; margin-bottom: 28px; padding-left: 74px;
+      position: relative; margin-bottom: 46px; padding-left: 74px;
       transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.2, 0.75, 0.25, 1);
     }
     /*
@@ -262,6 +262,7 @@
     .timeline-card {
       overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.85); border-radius: var(--radius);
       background: var(--paper); box-shadow: var(--shadow); backdrop-filter: blur(16px);
+      transform-origin: center center; transform: scale(0.9); will-change: transform;
     }
     .timeline-card.with-photo { min-height: 290px; display: grid; grid-template-columns: 44% 56%; }
     .timeline-card.with-photo.reverse { grid-template-columns: 56% 44%; }
@@ -278,34 +279,7 @@
     .photo-placeholder { text-align: center; color: #3f7278; }
     .photo-placeholder-icon { font-size: 32px; }
     .photo-placeholder-text { display: block; margin-top: 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; }
-    .card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    /*
-    写真がスクロールで画面中央に近づくと大きく、
-    画面の端に近づくと元のサイズに戻るズーム演出。
-    対応ブラウザのみCSSだけで動作し、非対応環境では
-    通常表示のまま(何も壊れない)。
-    */
-    @keyframes photo-scroll-scale {
-      from { transform: scale(1); }
-      50% { transform: scale(1.14); }
-      to { transform: scale(1); }
-    }
-    @supports (animation-timeline: view()) {
-      /*
-      写真(img)に直接animation-timeline:view()を付けると、祖先の
-      .timeline-card(角丸クリッピング用のoverflow:hidden)が
-      基準にされてしまい、実際のスクロール位置と連動しなくなる。
-      overflow:hiddenを持つ.timeline-card自身に名前付きタイムラインを
-      持たせ、中のimgからそれを参照することで正しく連動させる。
-      */
-      .timeline-card.with-photo { view-timeline-name: --photo-view; view-timeline-axis: block; }
-      .card-photo img {
-        animation: photo-scroll-scale linear both;
-        animation-timeline: --photo-view;
-        animation-range: cover 0% cover 100%;
-      }
-    }
+    .card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: filter 0.2s linear; }
     .card-body { padding: 25px 26px; display: flex; flex-direction: column; justify-content: center; }
     .time { color: var(--coral); font-size: 12px; font-weight: 800; letter-spacing: 0.12em; }
     .card-body h3 { margin: 7px 0 9px; font-size: clamp(21px, 4.5vw, 29px); line-height: 1.3; }
@@ -1038,32 +1012,44 @@
       }
 
       /*
-      写真のスクロール連動ズーム(JS版)
-      CSSのScroll-driven Animations(animation-timeline: view())に
-      対応していないブラウザでも動くよう、JSで直接計算して
-      transformを当てるフォールバックを用意する。対応ブラウザでは
-      CSSアニメーションの方が優先されるため、二重に動くことはない。
+      スケジュールカードのスクロール連動拡大
+      画面中央に近いカードほど大きく(scale 0.9〜1.08)、影を強く、
+      写真の彩度をわずかに上げる。IntersectionObserverの
+      「見えた/見えてない」ではなく、画面中央からの距離を
+      毎フレーム連続的に計算して反映する。
       */
-      const zoomPhotos = $$(".card-photo img");
-      if (zoomPhotos.length) {
-        const updateZoom = () => {
+      const scrollCards = $$(".timeline-card");
+      if (scrollCards.length) {
+        const updateCardFocus = () => {
           const viewportCenter = window.innerHeight / 2;
-          zoomPhotos.forEach(img => {
-            const rect = img.getBoundingClientRect();
+          scrollCards.forEach(card => {
+            const rect = card.getBoundingClientRect();
             if (rect.height === 0) return;
-            const imgCenter = rect.top + rect.height / 2;
-            const distance = Math.abs(imgCenter - viewportCenter);
+            const cardCenter = rect.top + rect.height / 2;
+            const distance = Math.abs(cardCenter - viewportCenter);
             const maxDistance = viewportCenter + rect.height / 2;
-            const progress = Math.min(1, distance / maxDistance);
-            const scale = 1 + (1 - progress) * 0.14;
-            img.style.transform = `scale(${scale.toFixed(3)})`;
+            const focus = 1 - Math.min(1, distance / maxDistance);
+
+            const scale = 0.9 + focus * 0.18;
+            card.style.transform = `scale(${scale.toFixed(4)})`;
+
+            const shadowY = 10 + focus * 20;
+            const shadowBlur = 20 + focus * 40;
+            const shadowAlpha = 0.1 + focus * 0.18;
+            card.style.boxShadow = `0 ${shadowY.toFixed(1)}px ${shadowBlur.toFixed(1)}px rgba(10, 60, 70, ${shadowAlpha.toFixed(3)})`;
+            card.style.zIndex = focus > 0.4 ? "3" : "1";
+
+            const img = card.querySelector(".card-photo img");
+            if (img) {
+              img.style.filter = `saturate(${(1 + focus * 0.25).toFixed(3)}) brightness(${(1 + focus * 0.06).toFixed(3)})`;
+            }
           });
         };
-        const zoomLoop = () => {
-          updateZoom();
-          requestAnimationFrame(zoomLoop);
+        const cardFocusLoop = () => {
+          updateCardFocus();
+          requestAnimationFrame(cardFocusLoop);
         };
-        requestAnimationFrame(zoomLoop);
+        requestAnimationFrame(cardFocusLoop);
       }
 
       /* 漂うモチーフ */
