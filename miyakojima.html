@@ -121,7 +121,7 @@
     }
     .wave-indicator-dot svg { width: 15px; height: 15px; }
     .wave-indicator-dot svg .car-body { fill: var(--coral); }
-    .wave-indicator-dot svg .car-windshield { stroke: #ffffff; stroke-width: 1.4; fill: none; }
+    .wave-indicator-dot svg .car-wheel { fill: var(--deepsea); }
     .wave-indicator.is-active .wave-indicator-dot { animation: wave-bounce 0.6s ease forwards; }
     .wave-indicator-ripple {
       position: absolute; inset: -10px; z-index: 1; border-radius: 50%; border: 2px solid var(--coral); opacity: 0;
@@ -480,10 +480,10 @@
       <span class="wave-indicator-ripple"></span>
       <span class="wave-indicator-dot">
         <svg viewBox="0 0 24 24">
-          <rect class="car-body" x="2" y="12" width="20" height="6" rx="3"></rect>
-          <path class="car-windshield" d="M14 12 L17 6 L20 12"></path>
-          <circle class="car-body" cx="7" cy="19" r="2.2"></circle>
-          <circle class="car-body" cx="17" cy="19" r="2.2"></circle>
+          <rect class="car-body" x="2" y="14" width="20" height="4.5" rx="2.2"></rect>
+          <path class="car-body" d="M7 14 A5 6.5 0 0 1 17 14 Z"></path>
+          <circle class="car-wheel" cx="7" cy="18.8" r="2.1"></circle>
+          <circle class="car-wheel" cx="17" cy="18.8" r="2.1"></circle>
         </svg>
       </span>
     </div>
